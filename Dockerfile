@@ -19,6 +19,7 @@ COPY Pipfile Pipfile.lock ${SRC_DIR}
 WORKDIR ${SRC_DIR}
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY scripts/fernet.py /usr/local/bin/fernet.py
 
 RUN pip install pipenv
 
