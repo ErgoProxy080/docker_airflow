@@ -1,7 +1,7 @@
 FROM python:3.6.5-stretch
 
 ARG SRC_DIR=/
-ARG AIRFLOW_HOME=/etc/airflow
+ARG AIRFLOW_HOME=/usr/local/airflow
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -yqq \
