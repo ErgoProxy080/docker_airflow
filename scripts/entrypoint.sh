@@ -10,7 +10,7 @@
 : ${RABBITMQ_DEFAULT_VHOST:="airflow"}
 : ${RABBITMQ_PORT:="5672"}
 
-: "${AIRFLOW__CORE__FERNET__KEY:=${FERNET_KEY:=$(python3 /usr/local/bin/fernet.py)}}"
+: "${AIRFLOW__CORE__FERNET__KEY:=${FERNET_KEY:="$(python3 /usr/local/bin/fernet.py)"}}"
 : "${AIRFLOW__CORE__EXECUTOR:=${AIRFLOW_EXECUTOR:-Sequential}Executor}"
 
 
@@ -21,10 +21,10 @@ if ["$AIRFLOW__CORE__EXECUTOR" == "Celery" ]; then
 fi
 
 export \
-    $AIRFLOW__CORE__FERNET__KEY \
-    $AIRFLOW__CORE__EXECUTOR \
-    $AIRFLOW__CORE__SQL_ALCHEMY_CONN \
-    $AIRFLOW__CELERY__BROKER_URL
+    AIRFLOW__CORE__FERNET__KEY \
+    AIRFLOW__CORE__EXECUTOR \
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN \
+    AIRFLOW__CELERY__BROKER_URL
 
 
 case "$1" in
