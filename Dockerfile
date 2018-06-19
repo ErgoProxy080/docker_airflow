@@ -12,26 +12,29 @@ RUN apt-get install -yqq \
                 zlib1g-dev \
                 openssh-server
 
-RUN useradd airflow
+RUN useradd -d ${AIRFLOW_HOME} airflow
 
 COPY Pipfile Pipfile.lock ${SRC_DIR}
 
 WORKDIR ${SRC_DIR}
 
-COPY scripts/entrypoint.sh /entrypoint.sh
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN pip install pipenv
 
-RUN pipenv install --system --deploy
+RUN pipenv install --system --deploy && \
+    rm -rf /root/.cache/.pip
 
 RUN mkdir ${AIRFLOW_HOME}
 COPY config/airflow.cfg ${AIRFLOW_HOME}
 RUN chown -R airflow: ${AIRFLOW_HOME}
 
+RUN apt-get clean
+
 EXPOSE 8080 5555 8793
 
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD ["webserver"]
