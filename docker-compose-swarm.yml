@@ -1,0 +1,62 @@
+version: '3.4'
+services:
+  db:
+    image: postgres:9.6.9
+    deploy:
+      replicas: 1
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    networks:
+      - airflow
+    volumes:
+      - airflow-db:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3.76-managment
+    deploy:
+      replicas: 1
+    environment:
+      - RABBITMQ_DEFAULT_USER=airflow
+      - RABBITMQ_DEFAULT_PASS=airflow
+      - RABBITMQ_DEFAULT_VHOST=airflow
+    networks:
+      - airflow
+  webserver:
+    image:
+    deploy:
+      replicas: 1
+    environment:
+    ports: "8080:8080"
+    command: "webserver"
+    networks:
+      - airflow
+  scheduler:
+    image:
+    deploy:
+      replicas: 1
+    command: "scheduler"
+  worker:
+    image:
+    deploy:
+      replicas: 1
+    command: "worker"
+  flower:
+    image:
+    deploy:
+      replicas: 1
+    command: "flower"
+    ports: "5555:5555"
+
+volumes:
+  airflow-db:
+    external:
+      name: airflow-db
+
+networks:
+  airflow:
+    driver: overlay
+    ipam:
+      driver: default
+      config:
+        - subnet: ${SUBNET}

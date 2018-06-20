@@ -1,19 +1,17 @@
 version: '3.3'
 services:
-  db:
+  postgres:
     image: postgres:9.6.9
-    deploy:
-      replicas: 1
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
     networks:
       - airflow
+    volumes:
+      - ${POSTGRES_PATH}
   rabbitmq:
     image: rabbitmq:3.76-managment
-    deploy:
-      replicas: 1
     environment:
       - RABBITMQ_DEFAULT_USER=airflow
       - RABBITMQ_DEFAULT_PASS=airflow
@@ -22,34 +20,38 @@ services:
       - airflow
   webserver:
     image:
-    deploy:
-      replicas: 1
+    depends_on:
+      - postgres
+      - rabbitmq
     environment:
+      - AIRFLOW__CORE__FERNET__KEY=<your_key>
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
     ports: "8080:8080"
     command: "webserver"
     networks:
       - airflow
+    volumes:
+      - ${DAG_PATH}
   scheduler:
     image:
-    deploy:
-      replicas: 1
+    depends_on:
+      - webserver
+    environment: *webserver
     command: "scheduler"
+    volumes:
+      - ${DAG_PATH}
   worker:
     image:
-    deploy:
-      replicas: 1
+    depends_on:
+      - scheduler
+    environment: *webserver
     command: "worker"
+    volumes:
+      - ${DAG_PATH}
   flower:
     image:
-    deploy:
-      replicas: 1
+    depends_on:
+      - rabbitmq
+    environment: *webserver
     command: "flower"
     ports: "5555:5555"
-
-networks:
-  airflow:
-    driver: overlay
-    ipam:
-      driver: default
-      config:
-        - subnet: ${SUBNET}
