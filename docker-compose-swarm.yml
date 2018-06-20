@@ -39,12 +39,16 @@ services:
       replicas: 1
     environment: *webserver
     command: "scheduler"
+    networks:
+      - airflow
   worker:
     image:
     deploy:
       replicas: 1
     environment: *webserver
     command: "worker"
+    networks:
+      - airflow
   flower:
     image:
     deploy:
@@ -55,6 +59,8 @@ services:
       - *webserver
     command: "flower"
     ports: "5555:5555"
+    networks:
+      - airflow
 
 volumes:
   airflow-db:

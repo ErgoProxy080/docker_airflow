@@ -3,21 +3,17 @@ services:
   postgres:
     image: postgres:9.6.9
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_USER=<your_user>
+      - POSTGRES_PASSWORD=<your_pass>
       - POSTGRES_DB=airflow
-    networks:
-      - airflow
     volumes:
       - ${POSTGRES_PATH}
   rabbitmq:
     image: rabbitmq:3.76-managment
     environment:
-      - RABBITMQ_DEFAULT_USER=airflow
-      - RABBITMQ_DEFAULT_PASS=airflow
-      - RABBITMQ_DEFAULT_VHOST=airflow
-    networks:
-      - airflow
+      - RABBITMQ_DEFAULT_USER=<your_user>
+      - RABBITMQ_DEFAULT_PASS=<your_pass>
+      - RABBITMQ_DEFAULT_VHOST=<your_vhost>
   webserver:
     image:
     depends_on:
@@ -26,10 +22,9 @@ services:
     environment:
       - AIRFLOW__CORE__FERNET__KEY=<your_key>   # If you want to put in your own, otherwise the key gets created for you
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - MODE=with_queue
     ports: "8080:8080"
     command: "webserver"
-    networks:
-      - airflow
     volumes:
       - ${DAG_PATH}
   scheduler:

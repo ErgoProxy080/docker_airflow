@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  postgres:
+    image: postgres:9.6.9
+    environment:
+      - POSTGRES_USER=<your_user>
+      - POSTGRES_PASSWORD=<your_pass>
+      - POSTGRES_DB=airflow
+    volumes:
+      - ${POSTGRES_PATH}
+  webserver:
+    image:
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - AIRFLOW__CORE__FERNET__KEY=<your_key>   # If you want to put in your own, otherwise the key gets created for you
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - MODE=no_queue
+    ports: "8080:8080"
+    volumes:
+      - ${DAG_PATH}
+  scheduler:
+    image:
+    depends_on:
+      - webserver
+    environment: *webserver
+    command: "scheduler"
+    volumes:
+      - ${DAG_PATH}
+  worker:
+    image:
+    depends_on:
+      - scheduler
+    environment: *webserver
+    command: "worker"
+    volumes:
+      - ${DAG_PATH}
