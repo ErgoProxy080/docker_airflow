@@ -24,7 +24,7 @@ services:
       - postgres
       - rabbitmq
     environment:
-      - AIRFLOW__CORE__FERNET__KEY=<your_key>
+      - AIRFLOW__CORE__FERNET__KEY=<your_key>   # If you want to put in your own, otherwise the key gets created for you
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
     ports: "8080:8080"
     command: "webserver"
