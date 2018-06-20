@@ -2,6 +2,7 @@ FROM python:3.6.5-stretch
 
 ARG SRC_DIR=/
 ARG AIRFLOW_HOME=/usr/local/airflow
+ARG DAG_HOME=${AIRFLOW_HOME}/dags
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -yqq \
@@ -26,7 +27,12 @@ RUN pip install pipenv
 RUN pipenv install --system --deploy && \
     rm -rf /root/.cache/.pip
 
-RUN mkdir ${AIRFLOW_HOME}
+RUN mkdir ${AIRFLOW_HOME} \
+            ${DAG_HOME}/dags
+
+# Bakes in your DAGs into the image to keep it consistent
+#COPY /your/dag/path/* ${DAG_HOME}/
+
 COPY config/airflow.cfg ${AIRFLOW_HOME}
 RUN chown -R airflow: ${AIRFLOW_HOME}
 
