@@ -4,8 +4,8 @@ ARG SRC_DIR=/
 ARG AIRFLOW_HOME=/usr/local/airflow
 ARG DAG_HOME=${AIRFLOW_HOME}/dags
 
-RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -yqq \
+RUN apt-get update && apt-get -yq upgrade
+RUN apt-get install -yq \
                 python-pip \
                 libffi-dev \
                 libxml2-dev \
