@@ -27,8 +27,8 @@ RUN pip install pipenv
 RUN pipenv install --system --deploy && \
     rm -rf /root/.cache/.pip
 
-RUN mkdir ${AIRFLOW_HOME} \
-            ${DAG_HOME}/dags
+RUN mkdir ${AIRFLOW_HOME}
+RUN mkdir ${DAG_HOME}
 
 # Bakes in your DAGs into the image to keep it consistent
 #COPY /your/dag/path/* ${DAG_HOME}/
