@@ -8,18 +8,25 @@ services:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
     networks:
       - airflow
     volumes:
       - airflow-db:/var/lib/postgresql/data
   rabbitmq:
     image: rabbitmq:3.76-managment
+    hostname: rabbitmq
     deploy:
       replicas: 1
     environment:
       - RABBITMQ_DEFAULT_USER=airflow
       - RABBITMQ_DEFAULT_PASS=airflow
       - RABBITMQ_DEFAULT_VHOST=airflow
+      - RABBITMQ_NODENAME=rabbit@rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - airflow
   webserver:
@@ -29,7 +36,8 @@ services:
     environment:
       - AIRFLOW__CORE__FERNET__KEY=<your_key>   # If you want to put in your own, otherwise the key gets created for you
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-    ports: "8080:8080"
+    ports:
+      - "8080:8080"
     command: "webserver"
     networks:
       - airflow
@@ -58,7 +66,8 @@ services:
       - *rabbitmq
       - *webserver
     command: "flower"
-    ports: "5555:5555"
+    ports:
+      - "5555:5555"
     networks:
       - airflow
 

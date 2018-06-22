@@ -24,7 +24,10 @@ services:
     image:
     depends_on:
       - webserver
-    environment: *webserver
+    environment:
+      - AIRFLOW__CORE__FERNET__KEY=<your_key>
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - MODE=no_queue
     command: "scheduler"
     volumes:
       - ${DAG_PATH}
@@ -32,7 +35,10 @@ services:
     image:
     depends_on:
       - scheduler
-    environment: *webserver
+    environment:
+      - AIRFLOW__CORE__FERNET__KEY=<your_key>
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - MODE=no_queue
     command: "worker"
     volumes:
       - ${DAG_PATH}

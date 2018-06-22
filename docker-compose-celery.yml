@@ -3,50 +3,72 @@ services:
   postgres:
     image: postgres:9.6.9
     environment:
-      - POSTGRES_USER=<your_user>
-      - POSTGRES_PASSWORD=<your_pass>
-      - POSTGRES_DB=airflow
-    volumes:
-      - ${POSTGRES_PATH}
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+    #volumes:
+    #  - ${POSTGRES_PATH}
+    ports:
+      - "5432:5432"
   rabbitmq:
-    image: rabbitmq:3.76-managment
+    image: rabbitmq:3.7.6-management
+    hostname: rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=<your_user>
-      - RABBITMQ_DEFAULT_PASS=<your_pass>
-      - RABBITMQ_DEFAULT_VHOST=<your_vhost>
+      - RABBITMQ_DEFAULT_USER=airflow
+      - RABBITMQ_DEFAULT_PASS=airflow
+      - RABBITMQ_DEFAULT_VHOST=airflow
+      - RABBITMQ_NODENAME=rabbit@rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
   webserver:
-    image:
+    image: airflow:0.0.1
     depends_on:
       - postgres
       - rabbitmq
     environment:
-      - AIRFLOW__CORE__FERNET__KEY=<your_key>   # If you want to put in your own, otherwise the key gets created for you
+      - AIRFLOW__CORE__FERNET__KEY   # If you want to put in your own, otherwise the key gets created for you
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
       - MODE=with_queue
-    ports: "8080:8080"
+    ports:
+      - "8080:8080"
     command: "webserver"
-    volumes:
-      - ${DAG_PATH}
+    restart: always
+    #volumes:
+    #  - ${DAG_PATH}
   scheduler:
-    image:
+    image: airflow:0.0.1
     depends_on:
       - webserver
-    environment: *webserver
+    environment:
+      - AIRFLOW__CORE__FERNET__KEY   # If you want to put in your own, otherwise the key gets created for you
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - MODE=with_queue
     command: "scheduler"
-    volumes:
-      - ${DAG_PATH}
+    restart: always
+    # volumes:
+    #   - ${DAG_PATH}
   worker:
-    image:
+    image: airflow:0.0.1
     depends_on:
       - scheduler
-    environment: *webserver
+    environment:
+      - AIRFLOW__CORE__FERNET__KEY   # If you want to put in your own, otherwise the key gets created for you
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - MODE=with_queue
     command: "worker"
-    volumes:
-      - ${DAG_PATH}
+    #volumes:
+    #  - ${DAG_PATH}
+    restart: always
   flower:
-    image:
+    image: airflow:0.0.1
     depends_on:
       - rabbitmq
-    environment: *webserver
+      - worker
+    environment:
+      - AIRFLOW__CORE__FERNET__KEY   # If you want to put in your own, otherwise the key gets created for you
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - MODE=with_queue
     command: "flower"
-    ports: "5555:5555"
+    ports:
+      - "5555:5555"
+    restart: always
