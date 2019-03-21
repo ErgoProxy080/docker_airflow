@@ -3,6 +3,7 @@ FROM python:3.6.5-stretch
 ARG SRC_DIR=/
 ARG AIRFLOW_HOME=/usr/local/airflow
 ARG DAG_HOME=${AIRFLOW_HOME}/dags
+ENV AIRFLOW_GPL_UNIDECODE yes
 
 RUN apt-get update && apt-get -yq upgrade
 RUN apt-get install -yq \
